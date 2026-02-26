@@ -1,0 +1,29 @@
+# Librairies système nécessaires pour :
+#   - compilation des packages R depuis les sources
+#   - rpy2 (libR)
+#   - ggplot2 / grDevices (rendu graphique sans écran)
+#   - genal / plink (librairies C)
+
+# Compilation R packages
+libcurl4-openssl-dev
+libssl-dev
+libxml2-dev
+libgit2-dev
+
+# Rendu graphique R (ggplot2, png, svg)
+libfontconfig1-dev
+libfreetype6-dev
+libpng-dev
+libtiff5-dev
+libjpeg-dev
+libharfbuzz-dev
+libfribidi-dev
+libcairo2-dev
+
+# Dépendances système générales
+libgsl-dev
+liblapack-dev
+libblas-dev
+
+# Pour pandoc (conversion notebook -> html/pdf)
+pandoc
