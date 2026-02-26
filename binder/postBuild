@@ -22,21 +22,7 @@ options(Ncpus = 4)  # compilation parallèle
 
 pkgs <- c(
     # TP MR (version avec package — env futur)
-    "MendelianRandomization",
-
-    # Visualisation et manipulation
-    "ggplot2",
-    "dplyr",
-    "tidyr",
-    "data.table",
-
-    # Dépendances de MendelianRandomization
-    "quantreg",
-    "iterpc",
-    "rmarkdown",
-
-    # Utilitaires
-    "remotes"
+    "MendelianRandomization"
 )
 
 cat("Installation des packages R...\n")
