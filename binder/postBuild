@@ -31,7 +31,6 @@ pkgs <- c(
     "data.table",
 
     # Dépendances de MendelianRandomization
-    "plotly",
     "quantreg",
     "iterpc",
     "rmarkdown",
