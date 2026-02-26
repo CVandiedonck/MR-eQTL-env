@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+# Réinstaller rpy2 via pip (conda version buggy)
+pip install --upgrade --force-reinstall rpy2
+
+# Enregistrer kernel R
+Rscript -e "IRkernel::installspec(user=FALSE, name='ir43', displayname='R 4.3')"
