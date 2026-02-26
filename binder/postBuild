@@ -1,94 +1,11 @@
 #!/bin/bash
-# postBuild : exécuté une seule fois lors du build de l'image
-# Installe les packages R depuis CRAN et enregistre les kernels Jupyter
-#
-# Ordre important :
-#   1. Packages R (depuis CRAN, plus fiable que conda pour R)
-#   2. Enregistrement kernel R dans JupyterLab
-#   3. Enregistrement kernel Python
-#   4. Vérifications finales
+set -e
 
-set -e  # arrêt immédiat si une commande échoue
+echo "=== Installing MendelianRandomization from CRAN ==="
+Rscript -e "install.packages('MendelianRandomization', repos='https://cloud.r-project.org')"
 
-echo "============================================"
-echo " postBuild — Installation packages R"
-echo "============================================"
-
-# ── 1. Packages R CRAN ──────────────────────────────────────────────────────
-Rscript - <<'EOF'
-
-options(repos = c(CRAN = "https://cloud.r-project.org"))
-options(Ncpus = 4)  # compilation parallèle
-
-pkgs <- c(
-    # TP MR (version avec package — env futur)
-    "MendelianRandomization"
-)
-
-cat("Installation des packages R...\n")
-install.packages(pkgs, dependencies = TRUE)
-
-# Vérification
-cat("\n=== Vérification ===\n")
-ok    <- sapply(pkgs, requireNamespace, quietly = TRUE)
-manq  <- names(ok[!ok])
-if (length(manq) > 0) {
-    cat("MANQUANTS :", paste(manq, collapse = ", "), "\n")
-    stop("Certains packages R n'ont pas pu être installés.")
-} else {
-    cat("Tous les packages R installés avec succès.\n")
-}
-
-EOF
-
-echo ""
-echo "============================================"
-echo " Enregistrement des kernels Jupyter"
-echo "============================================"
-
-# ── 2. Kernel R ─────────────────────────────────────────────────────────────
-Rscript -e "IRkernel::installspec(user = FALSE, name = 'ir43', displayname = 'R 4.3')"
-echo "Kernel R enregistré."
-
-# ── 3. Kernel Python ────────────────────────────────────────────────────────
+echo "=== Registering Jupyter kernels ==="
+Rscript -e "IRkernel::installspec(user=FALSE, name='ir43', displayname='R 4.3')"
 python -m ipykernel install --user --name python3 --display-name "Python 3.10"
-echo "Kernel Python enregistré."
 
-# ── 4. Vérification PLINK ───────────────────────────────────────────────────
-echo ""
-echo "============================================"
-echo " Vérification PLINK"
-echo "============================================"
-plink --version || echo "ATTENTION : plink non trouvé dans le PATH"
-
-# ── 5. Vérification genal-python ────────────────────────────────────────────
-echo ""
-echo "============================================"
-echo " Vérification genal-python"
-echo "============================================"
-python -c "
-import genal
-import pandas
-import numpy
-import statsmodels
-print('genal     :', genal.__version__)
-print('pandas    :', pandas.__version__)
-print('numpy     :', numpy.__version__)
-print('statsmodels:', statsmodels.__version__)
-" || echo "ATTENTION : vérifier l'installation de genal"
-
-# ── 6. Vérification rpy2 ────────────────────────────────────────────────────
-echo ""
-echo "============================================"
-echo " Vérification rpy2"
-echo "============================================"
-python -c "
-import rpy2.robjects as ro
-r_version = ro.r('R.version.string')[0]
-print('rpy2 OK — R version :', r_version)
-" || echo "ATTENTION : vérifier rpy2"
-
-echo ""
-echo "============================================"
-echo " postBuild terminé avec succès"
-echo "============================================"
+echo "=== Done ==="
