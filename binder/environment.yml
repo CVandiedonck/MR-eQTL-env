@@ -29,7 +29,7 @@ dependencies:
   - r-recommended       # packages R de base (stats, utils, etc.)
 
   # ── rpy2 (pont Python <-> R) ───────────────────────────────
-  - rpy2>=3.5
+# - rpy2>=3.5
 
   # ── PLINK 1.9 ──────────────────────────────────────────────
   - bioconda::plink=1.90b6.21   # version exacte pour --clump
