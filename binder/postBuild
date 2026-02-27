@@ -1,8 +1,35 @@
 #!/bin/bash
 set -e
 
-# Réinstaller rpy2 via pip (conda version buggy)
-pip install --upgrade --force-reinstall rpy2
+echo "=== Setting R environment variables for rpy2 ==="
+# Variables d'environnement pour que rpy2 trouve R correctement
+export PATH="/srv/conda/envs/notebook/bin:$PATH"
+export R_HOME="/srv/conda/envs/notebook/lib/R"
 
-# Enregistrer kernel R
+# Rendre ces variables permanentes pour tous les notebooks
+cat >> ~/.bashrc << 'EOF'
+export PATH="/srv/conda/envs/notebook/bin:$PATH"
+export R_HOME="/srv/conda/envs/notebook/lib/R"
+EOF
+
+# CRITIQUE : Les définir aussi dans le profil Jupyter
+mkdir -p ~/.jupyter
+cat > ~/.jupyter/jupyter_notebook_config.py << 'PYEOF'
+import os
+os.environ['PATH'] = '/srv/conda/envs/notebook/bin:' + os.environ.get('PATH', '')
+os.environ['R_HOME'] = '/srv/conda/envs/notebook/lib/R'
+PYEOF
+
+echo "=== Installing rpy2 ==="
+pip install --upgrade rpy2
+
+echo "=== Registering R kernel ==="
 Rscript -e "IRkernel::installspec(user=FALSE, name='ir43', displayname='R 4.3')"
+
+echo "=== Verification ==="
+echo "R_HOME: $R_HOME"
+echo "PATH: $PATH"
+which R
+R --version | head -1
+
+echo "=== Done ==="
