@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.swp
+*.swo
+
+# Data bruts (trop gros pour GitHub)
+data_raw/
+tmp_GENAL/
+
+# Fichiers temporaires genal
+.genal/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+*.save
