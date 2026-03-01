@@ -1,16 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "=== Installing rpy2 3.4.5 (last stable with auto-conversions) ==="
-pip install rpy2==3.4.5
+# Configure R_HOME if R exists
+if command -v R &> /dev/null; then
+    export R_HOME=$(R RHOME)
+    echo "export R_HOME=$R_HOME" >> ${HOME}/.bashrc
+    echo "export R_HOME=$R_HOME" >> ${HOME}/.profile
+fi
 
-echo "=== Registering R kernel ==="
-Rscript -e "IRkernel::installspec(user=FALSE, name='ir43', displayname='R 4.3')"
+# Install rpy2 3.4.5
+pip install --no-cache-dir rpy2==3.4.5
 
-echo "=== Verification ==="
-echo "rpy2 version:"
-python -c "import rpy2; print(rpy2.__version__)"
-echo "R version:"
-R --version | head -1
-
-echo "=== Done ==="
+# Configure IRkernel
+R -e "IRkernel::installspec(user=FALSE)"
