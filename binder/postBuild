@@ -2,15 +2,24 @@
 set -e
 
 echo "=== Installing rpy2 3.4.5 (last stable with auto-conversions) ==="
-pip install rpy2==3.4.5
+pip install --no-cache-dir rpy2==3.4.5
 
 echo "=== Registering R kernel ==="
-Rscript -e "IRkernel::installspec(user=FALSE, name='ir43', displayname='R 4.3')"
+R --quiet -e "IRkernel::installspec(prefix='${NB_PYTHON_PREFIX}', user=FALSE)" 2>&1 || echo "Warning: IRkernel install had issues, but continuing..."
+
+echo "=== Configure R_HOME for Jupyter sessions ==="
+# Create IPython startup script to set R_HOME before any rpy2 import
+# This fixes Plasma beta where R_HOME is not automatically detected
+mkdir -p ~/.ipython/profile_default/startup/
+cat > ~/.ipython/profile_default/startup/00-setup-r.py << 'PYEOF'
+import os
+os.environ['R_HOME'] = '/srv/conda/envs/notebook/lib/R'
+PYEOF
 
 echo "=== Verification ==="
 echo "rpy2 version:"
 python -c "import rpy2; print(rpy2.__version__)"
 echo "R version:"
 R --version | head -1
-
+echo "R_HOME will be set to: /srv/conda/envs/notebook/lib/R in Jupyter sessions"
 echo "=== Done ==="
