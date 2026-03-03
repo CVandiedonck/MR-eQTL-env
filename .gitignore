@@ -3,21 +3,50 @@ venv/
 __pycache__/
 *.pyc
 *.pyo
-*.swp
-*.swo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
 
-# Data bruts (trop gros pour GitHub)
-data_raw/
-tmp_GENAL/
-
-# Fichiers temporaires genal
-.genal/
+# R
+.Rhistory
+.RData
+.Rproj.user
 
 # Jupyter
 .ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Data files (large)
+data_raw/
+*.tsv.gz
+*.txt.gz
+*.vcf.gz
+*.zip
+
+# GENCODE annotations (auto-downloaded)
+gencode.v19.annotation.gtf.gz
+*.gtf.gz
+
+# Temporary files
+tmp_GENAL/
+scripts/tmp_GENAL/
+*.tmp
+*.log
+*.clumps
+*.clumps.missing_id
+*_to_clump.txt
 
 # OS
 .DS_Store
 Thumbs.db
-*.save
-gencode.v19.annotation.gtf.gz
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
