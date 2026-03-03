@@ -1,5 +1,7 @@
 # TP Randomisation Mendélienne et eQTL
 
+[🇬🇧 English version](README.en.md) | 🇫🇷 Version française
+
 Travaux pratiques de génétique statistique pour le Magistère Européen de Génétique (Université Paris Cité).
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/CVandiedonck/MR-eQTL-env/main?urlpath=lab)
@@ -84,15 +86,22 @@ MR-eQTL-env/
 ├── data/                            # Données du TP
 │   ├── eqtl_HMGCR.csv              # Données eQTL simulées
 │   └── MR_IVs_LDL_CAD.csv          # 280 SNPs MR annotés
+├── data_raw/                        # GWAS bruts (non versionnés)
+│   ├── LDL.tsv.gz                  # 372M - GWAS LDL
+│   ├── CAD.tsv.gz                  # 261M - GWAS CAD
+│   ├── LDL_md5sum.txt              # Checksum
+│   └── [fichier_1KG.zip]           # Panel 1000 Genomes (optionnel)
 ├── scripts/                         # Scripts de génération
 │   ├── 01_download_data.sh         # Téléchargement GWAS
 │   ├── 02_prepare_MR_IVs.R         # Pipeline R/PLINK (doc)
 │   ├── 03_generate_MR_data.py      # Génération IVs (genal)
-│   └── 04_annotate_genes.R         # Annotation GENCODE
+│   ├── 04_annotate_genes.R         # Annotation GENCODE
+│   └── tmp_GENAL/                  # Fichiers temp (non versionnés)
 ├── practical_eQTL_MR_baseR.ipynb   # Notebook principal (R base)
 ├── practical_eQTL_MR_tidyverse.ipynb # Version tidyverse (archive)
 ├── practical_eQTL_MR_MRpackage.ipynb # Version package MR (archive)
-├── README.md                        # Ce fichier
+├── README.md                        # Ce fichier (français)
+├── README.en.md                     # Version anglaise
 ├── README_DATA_GENERATION.md        # Pipeline reproduction données
 ├── INSTALL.md                       # Installation locale
 ├── ETAT.md                          # État développement
@@ -103,7 +112,8 @@ Fichiers non versionnés (.gitignore) :
 ├── data_raw/                        # GWAS bruts (372M + 261M)
 ├── gencode.v19.annotation.gtf.gz    # Annotations (40M, auto-download)
 ├── venv/                            # Environnement Python local
-└── tmp_GENAL/                       # Fichiers temporaires genal
+├── tmp_GENAL/                       # Fichiers temporaires genal (racine)
+└── scripts/tmp_GENAL/               # Fichiers temporaires genal (scripts)
 ```
 
 ### Données eQTL (simulées)
@@ -133,6 +143,8 @@ Voir `README_DATA_GENERATION.md` pour le pipeline complet de génération des do
 - `scripts/03_generate_MR_data.py` : Clumping et harmonisation
 - `scripts/04_annotate_genes.R` : Annotation des gènes (GenomicRanges + GENCODE)
 
+**Note** : Le script `03_generate_MR_data.py` utilise des chemins relatifs (`../data_raw/`, `../data/`) et doit être exécuté depuis le dossier `scripts/`.
+
 ---
 
 ## 📝 Licence
@@ -149,6 +161,7 @@ Vous êtes libre de :
 
 **Auteur** : Claire Vandiedonck (Université Paris Cité)  
 **GitHub** : [@CVandiedonck](https://github.com/CVandiedonck)  
+**Email** : claire.vandiedonck@u-paris.fr  
 **Année** : 2026
 
 Voir [CREDITS.md](CREDITS.md) pour les remerciements détaillés.
@@ -157,6 +170,7 @@ Voir [CREDITS.md](CREDITS.md) pour les remerciements détaillés.
 
 ## 🔗 Liens utiles
 
+- **TP Python MR (Marie Verbanck)** : https://github.com/CVandiedonck/MR_course_Python_Verbanck
 - **Documentation genal** : https://genal.readthedocs.io/
 - **GENCODE** : https://www.gencodegenes.org/
 - **GTEx Portal** : https://gtexportal.org/
