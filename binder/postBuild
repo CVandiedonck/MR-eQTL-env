@@ -4,6 +4,10 @@ set -e
 echo "=== Installing rpy2 3.4.5 (last stable with auto-conversions) ==="
 pip install --no-cache-dir rpy2==3.4.5
 
+echo "=== Configure R_HOME globally ==="
+export R_HOME=/srv/conda/envs/mr-env/lib/R
+echo "export R_HOME=/srv/conda/envs/mr-env/lib/R" >> /etc/environment
+
 echo "=== Registering R kernel ==="
 R --quiet -e "IRkernel::installspec(prefix='${NB_PYTHON_PREFIX}', user=FALSE)" 2>&1 || echo "Warning: IRkernel install had issues, but continuing..."
 
