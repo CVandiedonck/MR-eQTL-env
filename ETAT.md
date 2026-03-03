@@ -1,16 +1,19 @@
 # État actuel - 3 mars 2026
 
 ## Commit actuel
-`ceb7ad5` - Fix YAML syntax error
+Dernière version stable (postBuild sans /etc/environment)
 
-## Problème Plasma
-- Build plante : `/etc/environment: Permission denied` (ligne 9 postBuild)
-- Workaround : Ajouter en 1ère cellule notebook : `import os; os.environ['R_HOME'] = '/srv/conda/envs/notebook/lib/R'`
+## Statut plateformes
+- ✅ mybinder : fonctionne
+- ❌ Plasma/Uracile : nécessite workaround R_HOME
 
-## Plateformes qui marchent
-- mybinder : `a7ec63a` (main avant tentative fix)
-- Adenine : OK avec notebook actuel
+## Workaround Plasma
+Ajouter en 1ère cellule du notebook :
+```python
+import os
+os.environ['R_HOME'] = '/srv/conda/envs/notebook/lib/R'
+```
 
-## TODO
-- [ ] Corriger postBuild (enlever ligne /etc/environment)
-- [ ] Tester nouveau build Plasma
+## Notes
+- postBuild essayait d'écrire dans /etc/environment sans permission
+- Revenu à version simple (sans tentative fix R_HOME)
