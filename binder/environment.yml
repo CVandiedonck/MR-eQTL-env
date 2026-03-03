@@ -27,6 +27,9 @@ dependencies:
   - r-remotes
   - r-rmarkdown
   - r-recommended       # packages R de base (stats, utils, etc.)
+  
+variables:
+ R_HOME: /srv/conda/envs/notebook/lib/R
 
   # ── rpy2 (pont Python <-> R) ───────────────────────────────
 # - rpy2>=3.5
