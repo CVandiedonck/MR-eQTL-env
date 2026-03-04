@@ -92,6 +92,7 @@ MR-eQTL-env/
 │   ├── LDL_md5sum.txt              # Checksum
 │   └── [fichier_1KG.zip]           # Panel 1000 Genomes (optionnel)
 ├── scripts/                         # Scripts de génération
+│   ├── 00_generate_eQTL_data.py    # Génération données eQTL (simul)
 │   ├── 01_download_data.sh         # Téléchargement GWAS
 │   ├── 02_prepare_MR_IVs.R         # Pipeline R/PLINK (doc)
 │   ├── 03_generate_MR_data.py      # Génération IVs (genal)
@@ -118,8 +119,13 @@ Fichiers non versionnés (.gitignore) :
 
 ### Données eQTL (simulées)
 - **Fichier** : `data/eqtl_HMGCR.csv`
+- **Script** : `scripts/00_generate_eQTL_data.py`
 - **Source** : Basé sur GTEx v8 (Liver, rs12916, HMGCR)
-- 250 individus simulés avec génotypes, expression, covariables
+- **Contenu** : 250 individus avec :
+  - Génotypes rs12916 (MAF=0.42, équilibre HW)
+  - Expression HMGCR (effet β=-0.28/allèle T)
+  - Covariables : age, sex, PC1, PC2
+  - Variables pédagogiques : BMI, LDL_cholesterol, CAD_status
 
 ### Données MR (réelles)
 - **Fichier** : `data/MR_IVs_LDL_CAD.csv`
@@ -139,6 +145,7 @@ HMGCR, PCSK9, LDLR, APOE, APOB, CETP, LPA, LIPC, LIPG
 Voir `README_DATA_GENERATION.md` pour le pipeline complet de génération des données MR.
 
 **Scripts disponibles** :
+- `scripts/00_generate_eQTL_data.py` : Génération données eQTL simulées
 - `scripts/01_download_data.sh` : Téléchargement GWAS
 - `scripts/03_generate_MR_data.py` : Clumping et harmonisation
 - `scripts/04_annotate_genes.R` : Annotation des gènes (GenomicRanges + GENCODE)
