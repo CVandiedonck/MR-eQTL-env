@@ -81,13 +81,28 @@ mask_flip = E_df["EA"] != O_reordered["EA"]
 n_flip = mask_flip.sum()
 print(f"  → {n_flip} SNPs à flipper ({100*n_flip/len(E_df):.1f}% - allèles effet différents)")
 
+# 1. Flipper BETA
 O_reordered.loc[mask_flip, "BETA"] = -O_reordered.loc[mask_flip, "BETA"]
+
+# 2. Swapper EA ↔ NEA (CRITIQUE pour cohérence!)
+EA_temp = O_reordered.loc[mask_flip, "EA"].copy()
+O_reordered.loc[mask_flip, "EA"] = O_reordered.loc[mask_flip, "NEA"]
+O_reordered.loc[mask_flip, "NEA"] = EA_temp
+print(f"  ✓ EA ↔ NEA swappés pour {n_flip} SNPs")
+
+# 3. Inverser EAF (allele frequency du nouvel EA)
+O_reordered.loc[mask_flip, "EAF"] = 1 - O_reordered.loc[mask_flip, "EAF"]
+print(f"  ✓ EAF inversées pour {n_flip} SNPs")
+
+# Vérification finale : tous les EA doivent maintenant être alignés
+assert (E_df["EA"] == O_reordered["EA"]).all(), "ERREUR: EA non alignés après swap!"
+print(f"  ✓ TOUS les EA sont maintenant alignés!")
 
 # Vérifier la concordance après flip
 concordance_after = (
     (E_df["BETA"] > 0) == (O_reordered["BETA"] > 0)
 ).sum()
-print(f"  ✓ Concordance des signes après flip: {concordance_after}/{len(E_df)} ({100*concordance_after/len(E_df):.1f}%)")
+print(f"  ✓ Concordance des signes après harmonisation: {concordance_after}/{len(E_df)} ({100*concordance_after/len(E_df):.1f}%)")
 
 # Fusionner
 merged = pd.merge(E_df, O_reordered, on="SNP", suffixes=("_LDL", "_CAD"))
