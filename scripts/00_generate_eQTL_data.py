@@ -8,9 +8,10 @@ Includes additional covariates for pedagogical purposes:
 - LDL_cholesterol (mediator variable - NOT to adjust for in eQTL model)
 - CAD_status (outcome variable - NOT to adjust for in eQTL model)
 
-Allele frequencies: T (major, freq=0.58), C (minor, MAF=0.42)
-Genotypes coded as number of T alleles (0=CC, 1=CT, 2=TT)
-Effect: T allele decreases HMGCR expression (β=-0.28 per T allele)
+Allele frequencies (from dbSNP): T (major, freq=0.60), C (minor, MAF=0.40)
+Genotypes coded as number of MINOR allele C (0=TT, 1=CT, 2=CC)
+Effect: C allele increases HMGCR expression (β=+0.28 per C allele)
+       T allele (protective) decreases HMGCR and LDL
 
 Output: data/eqtl_HMGCR.csv
 """
@@ -24,33 +25,34 @@ np.random.seed(42)
 
 # Parameters
 N = 250  # Number of individuals
-FREQ_T = 0.58  # Frequency of T allele (major allele)
-FREQ_C = 0.42  # Frequency of C allele (minor allele, MAF)
+FREQ_C = 0.40  # Frequency of C allele (minor allele, MAF from dbSNP)
+FREQ_T = 0.60  # Frequency of T allele (major allele)
 
 print("=" * 60)
 print("Generating eQTL data for HMGCR")
 print("=" * 60)
 
 # 1. Generate genotypes under Hardy-Weinberg equilibrium
-print("\n1. Generating genotypes (rs12916, T=major, C=minor, MAF=0.42)...")
+print("\n1. Generating genotypes (rs12916, T=major, C=minor, MAF=0.40 from dbSNP)...")
 
 # HWE frequencies (genotypes coded as number of T alleles: 0, 1, 2)
 p_TT = FREQ_T ** 2  # 2 copies of T (major)
 p_CT = 2 * FREQ_T * FREQ_C  # 1 copy of T
 p_CC = FREQ_C ** 2  # 0 copies of T (2 copies of C, minor)
 
-# Generate genotypes (0, 1, 2 copies of T allele)
+# Generate genotypes (0, 1, 2 copies of MINOR allele C)
+# Standard practice: code minor allele
 genotypes = np.random.choice(
-    [0, 1, 2],  # 0=CC, 1=CT, 2=TT
+    [0, 1, 2],  # 0=TT, 1=CT, 2=CC (number of C alleles)
     size=N, 
-    p=[p_CC, p_CT, p_TT]
+    p=[p_TT, p_CT, p_CC]  # IMPORTANT: order changed for minor allele coding
 )
 
 # Verify HWE
 obs_counts = np.bincount(genotypes, minlength=3)
-print(f"   Genotype counts: CC={obs_counts[0]}, CT={obs_counts[1]}, TT={obs_counts[2]}")
-print(f"   Observed freq(T): {(obs_counts[1] + 2*obs_counts[2]) / (2*N):.3f} (expected: {FREQ_T:.3f})")
-print(f"   Observed MAF(C): {(obs_counts[1] + 2*obs_counts[0]) / (2*N):.3f} (expected: {FREQ_C:.3f})")
+print(f"   Genotype counts: TT (0C)={obs_counts[0]}, CT (1C)={obs_counts[1]}, CC (2C)={obs_counts[2]}")
+print(f"   Observed MAF(C): {(obs_counts[1] + 2*obs_counts[2]) / (2*N):.3f} (expected: {FREQ_C:.3f})")
+print(f"   Observed freq(T): {(obs_counts[1] + 2*obs_counts[0]) / (2*N):.3f} (expected: {FREQ_T:.3f})")
 
 # 2. Generate basic covariates
 print("\n2. Generating basic covariates...")
@@ -80,12 +82,12 @@ print(f"   Correlation PC1-PC2: {np.corrcoef(PC1, PC2)[0,1]:.3f}")
 # 3. Generate HMGCR expression
 print("\n3. Generating HMGCR expression...")
 
-# Parameters based on GTEx v8 (Liver, rs12916)
-# Beta coefficient: ~-0.25 (T allele decreases expression)
-# This mimics the effect of statins (HMGCR inhibition)
+# Parameters based on GTEx (rs12916 cis-eQTL of HMGCR)
+# T allele (major) decreases HMGCR expression
+# We code number of C alleles (minor), so C increases HMGCR
 
 baseline_expression = 8.5  # Mean log2-normalized expression
-beta_genotype = -0.28  # Effect size per T allele
+beta_genotype = 0.28  # Effect size per C allele (positive: C increases expression)
 beta_age = 0.008  # Small age effect
 beta_sex = 0.15  # Males slightly higher
 beta_PC1 = 0.05  # Small population structure effect
@@ -109,10 +111,10 @@ print(f"   SD expression: {HMGCR_expression.std():.3f}")
 # Verify genotype effect
 expr_by_geno = [HMGCR_expression[genotypes == g].mean() for g in [0, 1, 2]]
 print(f"   Expression by genotype:")
-print(f"      CC (0T): {expr_by_geno[0]:.3f}")
-print(f"      CT (1T): {expr_by_geno[1]:.3f}")
-print(f"      TT (2T): {expr_by_geno[2]:.3f}")
-print(f"   Effect per T allele: {(expr_by_geno[2] - expr_by_geno[0]) / 2:.3f}")
+print(f"      TT (0C): {expr_by_geno[0]:.3f}")
+print(f"      CT (1C): {expr_by_geno[1]:.3f}")
+print(f"      CC (2C): {expr_by_geno[2]:.3f}")
+print(f"   Effect per C allele: {(expr_by_geno[2] - expr_by_geno[0]) / 2:.3f} (should be ~+0.28)")
 
 # 4. Generate additional covariates (for pedagogical purposes)
 print("\n4. Generating additional covariates (for pedagogical purposes)...")
@@ -122,10 +124,10 @@ print("   ⚠️  These should NOT be included in the eQTL regression model!")
 BMI = np.random.normal(25, 4, N).clip(18, 40)
 
 # LDL cholesterol (MEDIATOR: genotype → HMGCR expression → LDL)
-# T allele decreases HMGCR → decreases LDL production
-# Mean LDL ~3.5 mmol/L, effect ~-0.15 mmol/L per T allele
+# C allele increases HMGCR → increases LDL production
+# Mean LDL ~3.5 mmol/L, effect ~+0.15 mmol/L per C allele
 LDL_baseline = 3.5
-LDL_beta_genotype = -0.15  # Per T allele (negative: T lowers LDL)
+LDL_beta_genotype = 0.15  # Per C allele (positive: C raises LDL)
 LDL_beta_age = 0.01  # Age effect
 LDL_beta_sex = 0.2  # Males slightly higher
 LDL_beta_BMI = 0.05  # BMI effect
@@ -158,19 +160,21 @@ print(f"   CAD prevalence: {CAD_status.sum()}/{N} ({100*CAD_status.mean():.1f}%)
 
 # Verify causal relationships
 print(f"\n   Causal chain verification:")
-print(f"   - LDL by genotype: CC={LDL_cholesterol[genotypes==0].mean():.2f}, "
-      f"CT={LDL_cholesterol[genotypes==1].mean():.2f}, "
-      f"TT={LDL_cholesterol[genotypes==2].mean():.2f}")
-print(f"   - CAD by genotype: CC={100*CAD_status[genotypes==0].mean():.1f}%, "
-      f"CT={100*CAD_status[genotypes==1].mean():.1f}%, "
-      f"TT={100*CAD_status[genotypes==2].mean():.1f}%")
+print(f"   - LDL by genotype: TT (0C)={LDL_cholesterol[genotypes==0].mean():.2f}, "
+      f"CT (1C)={LDL_cholesterol[genotypes==1].mean():.2f}, "
+      f"CC (2C)={LDL_cholesterol[genotypes==2].mean():.2f}")
+print(f"     → C allele increases LDL (via increased HMGCR)")
+print(f"   - CAD by genotype: TT (0C)={100*CAD_status[genotypes==0].mean():.1f}%, "
+      f"CT (1C)={100*CAD_status[genotypes==1].mean():.1f}%, "
+      f"CC (2C)={100*CAD_status[genotypes==2].mean():.1f}%")
+print(f"     → C allele increases CAD risk (via LDL)")
 
 # 5. Create DataFrame
 print("\n5. Creating DataFrame...")
 
 eqtl_data = pd.DataFrame({
     'individual_id': range(1, N + 1),
-    'genotype_rs12916': genotypes,
+    'genotype_rs12916': genotypes,  # Number of minor allele C (0=TT, 1=CT, 2=CC)
     'HMGCR_expression': HMGCR_expression,
     'age': age,
     'sex': sex,
