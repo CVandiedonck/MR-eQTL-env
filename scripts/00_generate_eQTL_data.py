@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """
 Generate simulated eQTL data for HMGCR gene
-Based on GTEx v8 (Liver tissue, rs12916 cis-eQTL)
+Based on GTEx (rs12916 cis-eQTL of HMGCR)
 
 Includes additional covariates for pedagogical purposes:
 - BMI (confounding variable)
 - LDL_cholesterol (mediator variable - NOT to adjust for in eQTL model)
 - CAD_status (outcome variable - NOT to adjust for in eQTL model)
+
+Allele frequencies: T (major, freq=0.58), C (minor, MAF=0.42)
+Genotypes coded as number of T alleles (0=CC, 1=CT, 2=TT)
+Effect: T allele decreases HMGCR expression (β=-0.28 per T allele)
 
 Output: data/eqtl_HMGCR.csv
 """
@@ -20,23 +24,24 @@ np.random.seed(42)
 
 # Parameters
 N = 250  # Number of individuals
-MAF = 0.42  # Minor allele frequency for rs12916 (T allele)
+FREQ_T = 0.58  # Frequency of T allele (major allele)
+FREQ_C = 0.42  # Frequency of C allele (minor allele, MAF)
 
 print("=" * 60)
 print("Generating eQTL data for HMGCR")
 print("=" * 60)
 
 # 1. Generate genotypes under Hardy-Weinberg equilibrium
-print("\n1. Generating genotypes (rs12916, MAF=0.42)...")
+print("\n1. Generating genotypes (rs12916, T=major, C=minor, MAF=0.42)...")
 
-# HWE frequencies
-p_TT = MAF ** 2
-p_CT = 2 * MAF * (1 - MAF)
-p_CC = (1 - MAF) ** 2
+# HWE frequencies (genotypes coded as number of T alleles: 0, 1, 2)
+p_TT = FREQ_T ** 2  # 2 copies of T (major)
+p_CT = 2 * FREQ_T * FREQ_C  # 1 copy of T
+p_CC = FREQ_C ** 2  # 0 copies of T (2 copies of C, minor)
 
 # Generate genotypes (0, 1, 2 copies of T allele)
 genotypes = np.random.choice(
-    [0, 1, 2], 
+    [0, 1, 2],  # 0=CC, 1=CT, 2=TT
     size=N, 
     p=[p_CC, p_CT, p_TT]
 )
@@ -44,7 +49,8 @@ genotypes = np.random.choice(
 # Verify HWE
 obs_counts = np.bincount(genotypes, minlength=3)
 print(f"   Genotype counts: CC={obs_counts[0]}, CT={obs_counts[1]}, TT={obs_counts[2]}")
-print(f"   Observed MAF: {(obs_counts[1] + 2*obs_counts[2]) / (2*N):.3f}")
+print(f"   Observed freq(T): {(obs_counts[1] + 2*obs_counts[2]) / (2*N):.3f} (expected: {FREQ_T:.3f})")
+print(f"   Observed MAF(C): {(obs_counts[1] + 2*obs_counts[0]) / (2*N):.3f} (expected: {FREQ_C:.3f})")
 
 # 2. Generate basic covariates
 print("\n2. Generating basic covariates...")
@@ -119,7 +125,7 @@ BMI = np.random.normal(25, 4, N).clip(18, 40)
 # T allele decreases HMGCR → decreases LDL production
 # Mean LDL ~3.5 mmol/L, effect ~-0.15 mmol/L per T allele
 LDL_baseline = 3.5
-LDL_beta_genotype = -0.15  # Per T allele
+LDL_beta_genotype = -0.15  # Per T allele (negative: T lowers LDL)
 LDL_beta_age = 0.01  # Age effect
 LDL_beta_sex = 0.2  # Males slightly higher
 LDL_beta_BMI = 0.05  # BMI effect
