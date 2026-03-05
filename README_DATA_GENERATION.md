@@ -47,15 +47,19 @@ python scripts/00_generate_eQTL_data.py
 
 ### Paramètres de simulation
 
-**Basé sur GTEx v8** (Liver, rs12916 cis-eQTL de HMGCR) :
+**Basé sur GTEx** (rs12916 cis-eQTL de HMGCR) :
 
 - **Génotype rs12916** :
-  - Allèle T (mineur) : MAF = 0.42
+  - Allèle T (majeur) : fréquence = 0.60 (protecteur : diminue HMGCR et LDL)
+  - Allèle C (mineur) : MAF = 0.40 (risque : augmente HMGCR et LDL) [source: dbSNP]
   - Équilibre Hardy-Weinberg
+  - **Codage : nombre d'allèles C (mineur)** : 0=TT, 1=CT, 2=CC
+  - Standard en génétique : coder l'allèle mineur
   
 - **Expression HMGCR** :
   - Baseline : 8.5 (log2-normalized)
-  - Effet par allèle T : β = -0.28 (diminue l'expression, mimant les statines)
+  - Effet par allèle C : β = +0.28 (augmente l'expression)
+  - Effet par allèle T : β = -0.28 (diminue l'expression, effet protecteur)
   - Ajusté sur : age, sex, PC1, PC2
   - Résiduel SD : 0.45
 
@@ -67,8 +71,8 @@ python scripts/00_generate_eQTL_data.py
 
 - **Variables pédagogiques** (à ne PAS ajuster dans le modèle eQTL) :
   - `BMI` : 18-40 kg/m² (indépendant du génotype)
-  - `LDL_cholesterol` : 1.5-7.0 mmol/L (médiateur : génotype → HMGCR → LDL)
-  - `CAD_status` : 0/1 (outcome : génotype → LDL → CAD)
+  - `LDL_cholesterol` : 1.5-7.0 mmol/L (médiateur : C → HMGCR↑ → LDL↑)
+  - `CAD_status` : 0/1 (outcome : C → LDL↑ → CAD↑)
 
 ### Vérifications
 
